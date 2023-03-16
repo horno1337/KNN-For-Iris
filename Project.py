@@ -1,5 +1,5 @@
 from collections import Counter
-import math
+from math import sqrt
 
 
 def wczytaj_dane(plik):
@@ -13,73 +13,55 @@ def wczytaj_dane(plik):
 
 def odleglosc_euklidesowa(a, b):
     sum_sq = 0.0
-    for i in range(len(a)):
+    for i in range(len(a)-1):
         sum_sq += (a[i] - b[i]) ** 2
-    return math.sqrt(sum_sq)
+    return sqrt(sum_sq)
 
 
-# def k_nn(X, y, wektor, k):
-#    odleglosci = [odleglosc_euklidesowa(wektor, x) for x in X]
-#    indeksy_k_sasiadow = sorted(
-#        range(len(odleglosci)), key=lambda i: odleglosci[i])[:k]
-#    k_sasiadow = [y[i] for i in indeksy_k_sasiadow]
-#    licznik = Counter(k_sasiadow)
-#    return licznik.most_common(1)[0][0]
+# Locate the most similar neighbors
+def get_neighbors(train, test_row, num_neighbors):
+    distances = list()
+    for train_row in train:
+    dist = odleglosc_euklidesowa(test_row, train_row)
+    distances.append((train_row, dist))
+    distances.sort(key=lambda tup: tup[1])
+    neighbors = list()
+    for i in range(num_neighbors):
+    neighbors.append(distances[i][0])
+    return neighbors
 
-def k_nn(X_train, y_train, X_test, k):
-    """Predict the class of each sample in X_test using the k-nearest neighbors algorithm."""
-    predictions = []
-    for x_test in X_test:
-        # Calculate the distances between x_test and all training samples
-        distances = []
-        for i, x_train in enumerate(X_train):
-            distance = odleglosc_euklidesowa(x_test, x_train)
-            distances.append((i, distance))
-        # Sort the distances in ascending order and select the k nearest neighbors
-        distances.sort(key=lambda x: x[1])
-        neighbors = []
-        for i in range(k):
-            index = distances[i][0]
-            neighbors.append(y_train[index])
-        # Make a prediction based on the majority class of the nearest neighbors
-        counts = {}
-        for neighbor in neighbors:
-            if neighbor in counts:
-                counts[neighbor] += 1
-            else:
-                counts[neighbor] = 1
-        prediction = max(counts, key=counts.get)
-        predictions.append(prediction)
-    return predictions
+# Make a prediction with neighbors
 
 
-def main():
-    iris_training = 'iris_training.txt'
-    iris_test = 'iris_test.txt'
-    X_train, y_train = wczytaj_dane(iris_training)
-    X_test, y_test = wczytaj_dane(iris_test)
+def predict_classification(train, test_row, num_neighbors):
+    neighbors = get_neighbors(train, test_row, num_neighbors)
+    output_values = [row[-1] for row in neighbors]
+    prediction = max(set(output_values), key=output_values.count)
+    return prediction
 
-    k = int(input("Podaj wartość parametru k: "))
-
-    poprawne = 0
-    for i in range(len(X_test)):
-        predykcja = k_nn(X_train, y_train, X_test[i], k)
-        if predykcja == y_test[i]:
-            poprawne += 1
-
-    dokladnosc = poprawne / len(X_test) * 100
-    print(f"Liczba poprawnie zaklasyfikowanych przykładów: {poprawne}")
-    print(f"Dokładność eksperymentu: {dokladnosc:.2f}%")
-
-    while True:
-        wektor = input(
-            "Wpisz wektor atrybutów oddzielony przecinkami (lub wpisz 'q' aby zakończyć): ")
-        if wektor == 'q':
-            break
-        wektor = [float(x) for x in wektor.split(',')]
-        wynik = k_nn(X_train, y_train, wektor, k)
-        print(f"Wynik klasyfikacji k-NN dla wektora: {wynik}")
+# kNN Algorithm
 
 
-if __name__ == "__main__":
-    main()
+def k_nearest_neighbors(train, test, num_neighbors):
+    predictions = list()
+    for row in test:
+    output = predict_classification(train, row, num_neighbors)
+    predictions.append(output)
+    return (predictions)
+
+
+# Test the kNN on the Iris Flowers dataset
+seed(1)
+filename = 'iris.csv'
+dataset = wczytaj_dane(filename)
+for i in range(len(dataset[0])-1):
+    str_column_to_float(dataset, i)
+# convert class column to integers
+str_column_to_int(dataset, len(dataset[0])-1)
+# evaluate algorithm
+n_folds = 5
+num_neighbors = 5
+scores = evaluate_algorithm(
+    dataset, k_nearest_neighbors, n_folds, num_neighbors)
+print('Scores: %s' % scores)
+print('Mean Accuracy: %.3f%%' % (sum(scores)/float(len(scores))))
