@@ -63,7 +63,8 @@ def test(train, test, k):
     for x in test:
         if klasyfikuj(train, x[0], k) == x[-1]:
             correct_count += 1
-    return correct_count / len(test)
+    accuracy = correct_count / len(test)
+    return accuracy, correct_count
 
 
 while True:
@@ -71,5 +72,6 @@ while True:
     if not k_str:
         break
     k = int(k_str)
-    accuracy = test(train_data, test_data, k)
+    accuracy, correct_count = test(train_data, test_data, k)
     print("Dokladnosc: ", accuracy)
+    print("Poprawne: ", correct_count)
