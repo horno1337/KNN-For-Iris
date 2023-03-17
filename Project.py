@@ -1,6 +1,5 @@
 from collections import Counter
 import math
-
 # read from file
 
 
@@ -11,9 +10,8 @@ def wczytaj_dane(plik):
     # split lines
     dane = []
     for line in lines:
-        attributes = [float(x.replace(',', '.'))
-                      for x in line.split('\t')[:-1]]
-        decision = line.strip().split('\t')[-1]
+        attributes = [float(x.replace(',', '.')) for x in line.split()[:-1]]
+        decision = line.strip().split('\t')[-1].strip()
         dane.append((attributes, decision))
 
     return dane
@@ -24,7 +22,12 @@ test_data = wczytaj_dane('iris_test.txt')
 
 
 def odleglosc_euklidesowa(a, b):
-    return math.sqrt(sum([(a[i]-b[i])**2 for i in range(len(a))]))
+    if len(a) != len(b):
+        raise ValueError("a and b must have the same length")
+    sum_sq = 0
+    for i in range(len(a)):
+        sum_sq += (a[i]-b[i])**2
+    return math.sqrt(sum_sq)
 
 
 # znajdz najblizszych
@@ -36,22 +39,29 @@ def znajdz_najblizszych(dane, punkt, k):
 
 # klasyfikuj
 def klasyfikuj(dane, punkt, k):
-    sasiad = znajdz_najblizszych(dane, punkt, k)
-    counts = {}
-    for s in sasiad:
-        if s[-1] not in counts:
-            counts[s[-1]] = 1
-        else:
-            counts[s[-1]] += 1
-    max_count = max(counts.values())
-    return [k for k, value in counts.items() if value == max_count][0]
+    sasiedzi = znajdz_najblizszych(dane, punkt, k)
+    counts = Counter([s[-1] for s in sasiedzi])
+    max_count = counts.most_common(1)[0][1]
+
+    tied_classes = [cls for cls, count in counts.items() if count == max_count]
+
+    # Find the class with the shortest distance among the tied classes
+    shortest_distance_class = None
+    shortest_distance = float('inf')
+    for s in sasiedzi:
+        if s[-1] in tied_classes and s[0] < shortest_distance:
+            shortest_distance = s[0]
+            shortest_distance_class = s[-1]
+
+    return shortest_distance_class
+
+# trenuj2
 
 
-# trenuj
 def test(train, test, k):
     correct_count = 0
     for x in test:
-        if klasyfikuj(train, x[0], k) == x[1]:
+        if klasyfikuj(train, x[0], k) == x[-1]:
             correct_count += 1
     return correct_count / len(test)
 
@@ -60,9 +70,6 @@ while True:
     k_str = input("Podaj k: ")
     if not k_str:
         break
-    k = [float(x) for x in k_str.strip().split(',')]
-    klasyfikacja = klasyfikuj(train_data, k, 3)
-    print("Klasyfikacja: ", klasyfikacja)
-
-# test
-print("Dokladnosc: ", test(train_data, test_data, 3))
+    k = int(k_str)
+    accuracy = test(train_data, test_data, k)
+    print("Dokladnosc: ", accuracy)
