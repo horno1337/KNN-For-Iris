@@ -2,22 +2,21 @@ MPP 1
 
 Termin oddania: 1 tydzień.
 
-Dane wejściowe:
+Input Data:
 
-Dane treningowe – plik iris_training.txt 
-Dane testowe – plik iris_test.txt
+Training data - iris_training.txt file
+Test data - iris_test.txt file
 
-Program musi wczytać dane z podanego pliku tekstowego. Zakładamy, ze:
-• Atrybut decyzyjny znajduje się w ostatniej kolumnie.
-• Wszystkie atrybuty poza decyzyjnym są numeryczne.
+The program must read data from the specified text file. We assume that:
+• The decision attribute is in the last column.
+• All attributes except the decision attribute are numerical.
 
-Program musi akceptować dowolną liczbę atrybutów warunkowych, tzn. nie może zakładać, że ich jest ustalona liczba.
+The program must accept any number of conditional attributes, i.e., it cannot assume that a fixed number of attributes are present.
 
-Następnie program wczyta wartość parametru k od użytkownika, a potem zaklasyfikuje wszystkie przykłady wczytane z pliku tekstowego zawierającego zbiór testowy algorytmem k- NN.
+Then, the program will read the value of parameter k from the user and classify all examples read from the text file containing the test set using the k-NN algorithm.
 
-Jako wynik ma wypisać liczbę prawidłowo zaklasyfikowanych przykładów oraz dokładność eksperymentu wyrażoną w procentach.
+As output, the program must display the number of correctly classified examples and the experiment's accuracy expressed as a percentage.
 
-Program musi umożliwiać wielokrotne ręczne wpisanie wektora atrybutów i wypisać dla takiego wektora jego wynik klasyfikacji k-NN.
+The program must allow multiple manual entries of attribute vectors and output the k-NN classification result for such a vector.
 
-Opcjonalnie można dodać wykres (np. w Excelu) zależności uzyskanej dokładności od k oraz krótka dyskusję.
-Nie można używać żadnych bibliotek ML, wszystko ma być zaimplementowane od zera w pętlach, if-ach, odległość trzeba liczyć za pomocą dzialań arytmetycznych, etc.
+No ML libraries can be used, and everything must be implemented from scratch using loops, if statements, arithmetic operations to calculate distance, etc
