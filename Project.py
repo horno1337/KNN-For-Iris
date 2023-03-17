@@ -1,67 +1,68 @@
 from collections import Counter
-from math import sqrt
+import math
+
+# read from file
 
 
 def wczytaj_dane(plik):
     with open(plik, 'r') as f:
-        dane = [line.strip().split(',') for line in f.readlines()]
-    X = [[float(x.replace(' ', '').replace('\t', ''))
-          for x in wiersz[:-1]] for wiersz in dane]
-    y = [wiersz[-1].strip() for wiersz in dane]
-    return X, y
+        lines = f.readlines()
+
+    # split lines
+    dane = []
+    for line in lines:
+        attributes = [float(x.replace(',', '.'))
+                      for x in line.split('\t')[:-1]]
+        decision = line.strip().split('\t')[:-1]
+        dane.append((attributes, decision))
+
+    return dane
+
+
+train_data = wczytaj_dane('iris_training.txt')
+test_data = wczytaj_dane('iris_test.txt')
 
 
 def odleglosc_euklidesowa(a, b):
-    sum_sq = 0.0
-    for i in range(len(a)-1):
-        sum_sq += (a[i] - b[i]) ** 2
-    return sqrt(sum_sq)
+    return math.sqrt(sum([(a[i]-b[i])**2 for i in range(len(a))]))
 
 
-# Locate the most similar neighbors
-def get_neighbors(train, test_row, num_neighbors):
-    distances = list()
-    for train_row in train:
-    dist = odleglosc_euklidesowa(test_row, train_row)
-    distances.append((train_row, dist))
-    distances.sort(key=lambda tup: tup[1])
-    neighbors = list()
-    for i in range(num_neighbors):
-    neighbors.append(distances[i][0])
-    return neighbors
-
-# Make a prediction with neighbors
+# znajdz najblizszych
+def znajdz_najblizszych(dane, punkt, k):
+    odleglosci = [(odleglosc_euklidesowa(x[0], punkt), x[1]) for x in dane]
+    odleglosci.sort()
+    return odleglosci[:k]
 
 
-def predict_classification(train, test_row, num_neighbors):
-    neighbors = get_neighbors(train, test_row, num_neighbors)
-    output_values = [row[-1] for row in neighbors]
-    prediction = max(set(output_values), key=output_values.count)
-    return prediction
-
-# kNN Algorithm
-
-
-def k_nearest_neighbors(train, test, num_neighbors):
-    predictions = list()
-    for row in test:
-    output = predict_classification(train, row, num_neighbors)
-    predictions.append(output)
-    return (predictions)
+# klasyfikuj
+def klasyfikuj(dane, punkt, k):
+    sasiad = znajdz_najblizszych(dane, punkt, k)
+    counts = {}
+    for s in sasiad:
+        if s[1] not in counts:
+            counts[s[1]] = 0
+        else:
+            counts[s[1]] += 1
+    max_count = max(counts.values())
+    return [k for k, value in counts.items() if value == max_count][0]
 
 
-# Test the kNN on the Iris Flowers dataset
-seed(1)
-filename = 'iris.csv'
-dataset = wczytaj_dane(filename)
-for i in range(len(dataset[0])-1):
-    str_column_to_float(dataset, i)
-# convert class column to integers
-str_column_to_int(dataset, len(dataset[0])-1)
-# evaluate algorithm
-n_folds = 5
-num_neighbors = 5
-scores = evaluate_algorithm(
-    dataset, k_nearest_neighbors, n_folds, num_neighbors)
-print('Scores: %s' % scores)
-print('Mean Accuracy: %.3f%%' % (sum(scores)/float(len(scores))))
+# trenuj
+def test(train, test, k):
+    correct_count = 0
+    for x in test:
+        if klasyfikuj(train, x[0], k) == x[1]:
+            correct_count += 1
+    return correct_count / len(test) * 100
+
+
+while True:
+    k_str = input("Podaj k: ")
+    if not k_str:
+        break
+    k = [float(x) for x in k_str.strip().split(',')]
+    klasyfikacja = klasyfikuj(train_data, k, 3)
+    print("Klasyfikacja: ", klasyfikacja)
+
+# test
+print("Dokladnosc: ", test(train_data, test_data, 3))
