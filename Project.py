@@ -13,7 +13,7 @@ def wczytaj_dane(plik):
     for line in lines:
         attributes = [float(x.replace(',', '.'))
                       for x in line.split('\t')[:-1]]
-        decision = line.strip().split('\t')[:-1]
+        decision = line.strip().split('\t')[-1]
         dane.append((attributes, decision))
 
     return dane
@@ -29,7 +29,7 @@ def odleglosc_euklidesowa(a, b):
 
 # znajdz najblizszych
 def znajdz_najblizszych(dane, punkt, k):
-    odleglosci = [(odleglosc_euklidesowa(x[0], punkt), x[1]) for x in dane]
+    odleglosci = [(odleglosc_euklidesowa(punkt, x[0]), x[1]) for x in dane]
     odleglosci.sort()
     return odleglosci[:k]
 
@@ -39,10 +39,10 @@ def klasyfikuj(dane, punkt, k):
     sasiad = znajdz_najblizszych(dane, punkt, k)
     counts = {}
     for s in sasiad:
-        if s[1] not in counts:
-            counts[s[1]] = 0
+        if s[-1] not in counts:
+            counts[s[-1]] = 1
         else:
-            counts[s[1]] += 1
+            counts[s[-1]] += 1
     max_count = max(counts.values())
     return [k for k, value in counts.items() if value == max_count][0]
 
@@ -53,7 +53,7 @@ def test(train, test, k):
     for x in test:
         if klasyfikuj(train, x[0], k) == x[1]:
             correct_count += 1
-    return correct_count / len(test) * 100
+    return correct_count / len(test)
 
 
 while True:
