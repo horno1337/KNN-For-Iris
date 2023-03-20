@@ -1,13 +1,13 @@
 from collections import Counter
 import math
-# read from file
 
 
+# wczytaj dane z pliku
 def wczytaj_dane(plik):
     with open(plik, 'r') as f:
         lines = f.readlines()
 
-    # split lines
+    # podziel na atrybuty i decyzje
     dane = []
     for line in lines:
         attributes = [float(x.replace(',', '.')) for x in line.split()[:-1]]
@@ -17,10 +17,12 @@ def wczytaj_dane(plik):
     return dane
 
 
+# wczytaj dane
 train_data = wczytaj_dane('iris_training.txt')
 test_data = wczytaj_dane('iris_test.txt')
 
 
+# oblicz odleglosc euklidesowa między dwoma punktami
 def odleglosc_euklidesowa(a, b):
     if len(a) != len(b):
         raise ValueError("a and b must have the same length")
@@ -30,14 +32,14 @@ def odleglosc_euklidesowa(a, b):
     return math.sqrt(sum_sq)
 
 
-# znajdz najblizszych
+# znajdz  k najblizszych sasiadow dla danego punktu
 def znajdz_najblizszych(dane, punkt, k):
     odleglosci = [(odleglosc_euklidesowa(punkt, x[0]), x[1]) for x in dane]
     odleglosci.sort()
     return odleglosci[:k]
 
 
-# klasyfikuj
+# klasyfikuj puinkt na podsawie k najblizszych sasiadow
 def klasyfikuj(dane, punkt, k):
     sasiedzi = znajdz_najblizszych(dane, punkt, k)
     counts = Counter([s[-1] for s in sasiedzi])
@@ -45,7 +47,7 @@ def klasyfikuj(dane, punkt, k):
 
     tied_classes = [cls for cls, count in counts.items() if count == max_count]
 
-    # Find the class with the shortest distance among the tied classes
+    # Znajdź klasę o najkrótszej odległości wśród remisów
     shortest_distance_class = None
     shortest_distance = float('inf')
     for s in sasiedzi:
@@ -55,9 +57,8 @@ def klasyfikuj(dane, punkt, k):
 
     return shortest_distance_class
 
-# trenuj2
 
-
+# testuj klasyfikator na zbiorze testowym
 def test(train, test, k):
     correct_count = 0
     for x in test:
@@ -74,4 +75,4 @@ while True:
     k = int(k_str)
     accuracy, correct_count = test(train_data, test_data, k)
     print("Dokladnosc: ", accuracy)
-    print("Poprawne: ", correct_count)
+    print("Poprawne: ", correct_count, "/30")
