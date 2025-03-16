@@ -1,4 +1,5 @@
 import math
+from collections import Counter
 
 
 def wczytaj_dane(plik):
@@ -7,7 +8,7 @@ def wczytaj_dane(plik):
 
     dane = []
     for line in lines:
-        attributes = line.strip().split(",")[:-1]
+        attributes = list(map(float, line.strip().split(",")[:-1]))
         decision = line.strip().split(",")[-1].strip()
         dane.append((attributes, decision))
 
@@ -30,12 +31,13 @@ def dziel_dane(data, training_data, test_data):
 training_data = []
 test_data = []
 data = wczytaj_dane("iris.txt")
-
 training_data, test_data = dziel_dane(data, training_data, test_data)
-print("\n TRAINING DATA: \n")
+
+print("Training Data:")
 for attributes, decision in training_data:
     print(f"Attributes: {attributes}, Decision: {decision}")
-print("\n TEST DATA: \n")
+
+print("Test Data:")
 for attributes, decision in test_data:
     print(f"Attributes: {attributes}, Decision: {decision}")
 
@@ -47,3 +49,24 @@ def Distance(a, b):
     for i in range(len(a)):
         sum_sq += (a[i] - b[i]) ** 2
     return math.sqrt(sum_sq)
+
+
+def classify_knn(training_data, test, k):
+    distances = [(Distance(test, train), label) for train, label in training_data]
+    distances.sort()
+    nearest_neighbors = [label for _, label in distances[:k]]
+    return Counter(nearest_neighbors).most_common(1)[0][0]
+
+
+def oblicz_celnosc(training_data, test_data, k):
+    poprawne = 0
+    for attributes, decision in test_data:
+        predicted = classify_knn(training_data, attributes, k)
+        if predicted == decision:
+            poprawne += 1
+    return (poprawne / len(test_data)) * 100
+
+
+k = int(input("Podaj wartość k dla kNN: "))
+celnosc = oblicz_celnosc(training_data, test_data, k)
+print(f"Celność klasyfikatora k-NN dla k={k}: {celnosc:.2f}%")
