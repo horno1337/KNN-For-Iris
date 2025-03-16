@@ -33,13 +33,13 @@ test_data = []
 data = wczytaj_dane("iris.txt")
 training_data, test_data = dziel_dane(data, training_data, test_data)
 
-print("Training Data:")
-for attributes, decision in training_data:
-    print(f"Attributes: {attributes}, Decision: {decision}")
+# print("Training Data:")
+# for attributes, decision in training_data:
+#     print(f"Attributes: {attributes}, Decision: {decision}")
 
-print("Test Data:")
-for attributes, decision in test_data:
-    print(f"Attributes: {attributes}, Decision: {decision}")
+# print("Test Data:")
+# for attributes, decision in test_data:
+#     print(f"Attributes: {attributes}, Decision: {decision}")
 
 
 def Distance(a, b):
@@ -58,7 +58,7 @@ def classify_knn(training_data, test, k):
     return Counter(nearest_neighbors).most_common(1)[0][0]
 
 
-def oblicz_celnosc(training_data, test_data, k):
+def clc_accuracy(training_data, test_data, k):
     poprawne = 0
     for attributes, decision in test_data:
         predicted = classify_knn(training_data, attributes, k)
@@ -67,6 +67,6 @@ def oblicz_celnosc(training_data, test_data, k):
     return (poprawne / len(test_data)) * 100
 
 
-k = int(input("Podaj wartość k dla kNN: "))
-celnosc = oblicz_celnosc(training_data, test_data, k)
-print(f"Celność klasyfikatora k-NN dla k={k}: {celnosc:.2f}%")
+k = int(input("wartość k dla kNN: "))
+acc = clc_accuracy(training_data, test_data, k)
+print(f"Celność klasyfikatora k-NN dla k={k}: {acc:.2f}%")
